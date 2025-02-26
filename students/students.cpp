@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
 #define low_factor 0.7
 enum MenuOption
@@ -40,18 +41,18 @@ int getID();
 
 bool removeStudent(Student*& students, unsigned short& count, const unsigned short capacity, const int id);
 
+void write_toFile();
+
 int main()
 {
 	unsigned short capacity = 10;
-	unsigned short count = 2;
+	unsigned short count = 0;
 	unsigned short id_list_size = 0;
 	bool exit = false;
 	unsigned short option;
 
 	Student* students = new Student[capacity];
 	Student student;
-	students[0] = { {"valok", "nura", "bek03"}, 0, "Abbas", 40, 7.6f };
-	students[1] = { {"valok", "hessel", "newphilin"}, 1, "Qapaz", 41, 3.5f };
 
 	while (!exit)
 	{
@@ -111,6 +112,24 @@ int main()
 	}
 
 	return 0;
+}
+
+void write_studetns(Student student)
+{
+	FILE* file = fopen("students.bin", "wb");
+
+
+	fwrite(&student, sizeof(Student), 1, file);
+	fclose(file);
+}
+
+void write_studetns(Student* student, unsigned short count)
+{
+	FILE* file = fopen("students.bin", "wb");
+
+
+	fwrite(student, sizeof(Student), count, file);
+	fclose(file);
 }
 
 void printMenu()
