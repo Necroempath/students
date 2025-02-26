@@ -1,6 +1,8 @@
-#define _CRT_SECURE_NO_WARNINGS
-#include <iostream>
+﻿#define _CRT_SECURE_NO_WARNINGS
 #define low_factor 0.7
+#define file_name "students.bin"
+#include <iostream>
+
 enum MenuOption
 {
 	SHOW_STUDENTS = 1,
@@ -41,26 +43,28 @@ int getID();
 
 bool removeStudent(Student*& students, unsigned short& count, const unsigned short capacity, const int id);
 
-void write_students(Student student);
+bool write_students(Student student);
 
-void write_students(Student* students, unsigned short count);
+bool write_students(Student* students, unsigned short count);
 
-void read_students(Student* students, unsigned short count);
+bool read_students(Student* students, unsigned short count);
+
+int get_size();
+
+void restore_students();
 
 int main()
 {
 	unsigned short capacity = 10;
-	unsigned short count = 3;
-	unsigned short id_list_size = 0;
 	bool exit = false;
 	unsigned short option;
 
 	Student* students = new Student[capacity];
 	Student student;
-	FILE* file = fopen("students.bin", "rb");
-	fread(&student, sizeof(Student), 1, file);
-	printf(student.name);
-	//read_students(students, count);
+	//restore_students();
+	unsigned short count = get_size() / sizeof(Student);
+	read_students(students, count);
+
 	while (!exit)
 	{
 		printMenu();
@@ -83,6 +87,7 @@ int main()
 
 				student.id = count;
 				addStudent(students, count, student);
+				write_students(students, count);
 
 				std::cout << "\nNew student has been added\n\n";
 			}
@@ -99,7 +104,10 @@ int main()
 			std::cout << "Input ID of student you want to delete: \t";
 
 			if (removeStudent(students, count, capacity, getID())) {
+
+				write_students(students, count);
 				std::cout << "Student has been deleted\n";
+
 				if (count < capacity * low_factor)
 				{
 					resizeArray(students, capacity, low_factor);
@@ -121,37 +129,82 @@ int main()
 	return 0;
 }
 
-void write_students(Student student)
+void restore_students()
 {
-	FILE* file = fopen("students.bin", "wb");
-
-
-	fwrite(&student, sizeof(Student), 1, file);
-	fclose(file);
-}
-
-void write_students(Student* students, unsigned short count)
-{
-	FILE* file = fopen("students.bin", "wb");
+	FILE* file = fopen(file_name, "wb");
 
 	if (!file) {
 		return;
+	}
+	Student students[5] = {
+		{{"USA", "New York", "5th Avenue"}, 0, "Alice", 20, 4.5},
+		{{"Canada", "Toronto", "Bay Street"}, 1, "Bob", 22, 3.8},
+		{{"UK", "London", "Baker Street"}, 2, "Charlie", 21, 4.2},
+		{{"Germany", "Berlin", "Hauptstrasse"}, 3, "David", 23, 4.7},
+		{{"France", "Paris", "Champs-Ulysies"}, 4, "Eve", 19, 4.9}
+	};
+
+	fwrite(students, sizeof(Student), 5, file);
+
+	fclose(file);
+}
+
+int get_size()
+{
+	FILE* file = fopen(file_name, "rb");
+
+	if (!file) {
+		return -1;
+	}
+
+	fseek(file, 0, SEEK_END); //ДА, СВЯТОЙ РАФАЭЛЬ, СОГРЕШИЛ. НО Я МОГУ ВСЕ ОБЪЯСНИТЬ!!!
+	int size = ftell(file);
+	
+	fclose(file);
+
+	return size;
+}
+
+bool write_students(Student student)
+{
+	FILE* file = fopen(file_name, "wb");
+
+	if (!file) {
+		return 0;
+	}
+
+	fwrite(&student, sizeof(Student), 1, file);
+	fclose(file);
+
+	return 1;
+}
+
+bool write_students(Student* students, unsigned short count)
+{
+	FILE* file = fopen(file_name, "wb");
+
+	if (!file) {
+		return 0;
 	}
 
 	fwrite(students, sizeof(Student), count, file);
 	fclose(file);
+
+	return 1;
 }
 
-void read_students(Student* students, unsigned short count)
+bool read_students(Student* students, unsigned short count)
 {
-	FILE* file = fopen("students.bin", "rb");
+	FILE* file = fopen(file_name, "rb");
 
 	if (!file) {
-		return;
+		return 0;
 	}
 
 	fread(students, sizeof(Student), count, file);
 	fclose(file);
+
+	return 1;
 }
 
 void printMenu()
