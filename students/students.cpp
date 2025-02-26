@@ -50,8 +50,8 @@ int main()
 
 	Student* students = new Student[capacity];
 	Student student;
-	students[0] = { {"valok", "nura", "bek03"}, 87, "Abbas", 40, 7.6f };
-	students[1] = { {"valok", "hessel", "newphilin"}, 43, "Qapaz", 41, 3.5f };
+	students[0] = { {"valok", "nura", "bek03"}, 0, "Abbas", 40, 7.6f };
+	students[1] = { {"valok", "hessel", "newphilin"}, 1, "Qapaz", 41, 3.5f };
 
 	while (!exit)
 	{
@@ -72,7 +72,7 @@ int main()
 			if (isValidStudent(students, count, student)) {
 				if (count == capacity)
 					resizeArray(students, capacity);
-
+				student.id = count;
 				addStudent(students, count, student);
 				std::cout << "\nNew student has been added\n\n";
 			}
@@ -172,9 +172,7 @@ Student inputStudent()
 	std::cout << "Street: ";
 	std::cin >> student.adress.street;
 
-	std::cout << "Student ID: ";
-	std::cin >> student.id;
-	std::cout << "Name: ";
+	std::cout << "Student Name: ";
 	std::cin >> student.name;
 	std::cout << "Age: ";
 	std::cin >> student.age;
@@ -196,26 +194,19 @@ bool isValidStudent(const Student* students, const unsigned short count, const S
 		student.age < 16 || student.age > 60 ||
 		student.grade < 0 || student.grade > 10)
 		return false;
-
-	for (unsigned short i = 0; i < count; i++)
-	{
-		if (student.id == students[i].id)
-			return false;
-	}
-
+	
 	return true;
 }
 
 inline bool addStudent(Student* students, unsigned short& count, const Student student)
-{
+{//Add check
 	students[count++] = student;
 	return true;
 }
 
 bool removeStudent(Student*& students, unsigned short& count, const unsigned short capacity, const int id)
 {
-
-	unsigned short index = count;
+	unsigned short index = count; //EXttend check
 
 	for (unsigned short i = 0; i < count; i++)
 	{
