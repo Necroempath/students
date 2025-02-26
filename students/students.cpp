@@ -1,5 +1,5 @@
 #include <iostream>
-
+#define low_factor 0.7
 enum MenuOption
 {
 	SHOW_STUDENTS = 1,
@@ -34,7 +34,7 @@ Student inputStudent();
 
 inline bool addStudent(Student* students, unsigned short& count, const Student student);
 
-bool isValidStudent(const Student* students, unsigned short count, const Student& student);
+bool isValidStudent(const Student* students, unsigned short count, const Student student);
 
 int getID();
 
@@ -72,8 +72,10 @@ int main()
 			if (isValidStudent(students, count, student)) {
 				if (count == capacity)
 					resizeArray(students, capacity);
+
 				student.id = count;
 				addStudent(students, count, student);
+
 				std::cout << "\nNew student has been added\n\n";
 			}
 			else {
@@ -90,9 +92,9 @@ int main()
 
 			if (removeStudent(students, count, capacity, getID())) {
 				std::cout << "Student has been deleted\n";
-				if (count < capacity * 0.7)
+				if (count < capacity * low_factor)
 				{
-					resizeArray(students, capacity, 0.7f);
+					resizeArray(students, capacity, low_factor);
 				}
 			}
 			else {
@@ -184,29 +186,37 @@ Student inputStudent()
 	return student;
 }
 
-bool isValidStudent(const Student* students, const unsigned short count, const Student& student)
+bool isValidStudent(const Student* students, const unsigned short count, const Student student)
 {
 	if (strlen(student.adress.country) <= 2 ||
 		strlen(student.adress.city) <= 2 ||
 		strlen(student.adress.street) <= 2)
-		return false;
+		return 0;
 	if (strlen(student.name) <= 2 ||
 		student.age < 16 || student.age > 60 ||
 		student.grade < 0 || student.grade > 10)
-		return false;
+		return 0;
 	
-	return true;
+	return 1;
 }
 
 inline bool addStudent(Student* students, unsigned short& count, const Student student)
-{//Add check
+{ 
+	if (!students) {
+		return 0;
+	}
+
 	students[count++] = student;
-	return true;
+	return 1;
 }
 
 bool removeStudent(Student*& students, unsigned short& count, const unsigned short capacity, const int id)
 {
-	unsigned short index = count; //EXttend check
+	if (!students || count == 0) {
+		return 0;
+	}
+
+	unsigned short index = count; 
 
 	for (unsigned short i = 0; i < count; i++)
 	{
