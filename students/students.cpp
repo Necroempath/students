@@ -19,7 +19,7 @@ struct Adress
 struct Student
 {
 	Adress adress;
-	int id;
+	unsigned short id;
 	char name[20];
 	unsigned short age;
 	float grade;
@@ -41,19 +41,26 @@ int getID();
 
 bool removeStudent(Student*& students, unsigned short& count, const unsigned short capacity, const int id);
 
-void write_toFile();
+void write_students(Student student);
+
+void write_students(Student* students, unsigned short count);
+
+void read_students(Student* students, unsigned short count);
 
 int main()
 {
 	unsigned short capacity = 10;
-	unsigned short count = 0;
+	unsigned short count = 3;
 	unsigned short id_list_size = 0;
 	bool exit = false;
 	unsigned short option;
 
 	Student* students = new Student[capacity];
 	Student student;
-
+	FILE* file = fopen("students.bin", "rb");
+	fread(&student, sizeof(Student), 1, file);
+	printf(student.name);
+	//read_students(students, count);
 	while (!exit)
 	{
 		printMenu();
@@ -61,7 +68,7 @@ int main()
 		std::cout << "\nOption: ";
 		std::cin >> option;
 		std::cin.ignore();
-
+		
 		switch (option)
 		{
 		case SHOW_STUDENTS:
@@ -114,7 +121,7 @@ int main()
 	return 0;
 }
 
-void write_studetns(Student student)
+void write_students(Student student)
 {
 	FILE* file = fopen("students.bin", "wb");
 
@@ -123,12 +130,27 @@ void write_studetns(Student student)
 	fclose(file);
 }
 
-void write_studetns(Student* student, unsigned short count)
+void write_students(Student* students, unsigned short count)
 {
 	FILE* file = fopen("students.bin", "wb");
 
+	if (!file) {
+		return;
+	}
 
-	fwrite(student, sizeof(Student), count, file);
+	fwrite(students, sizeof(Student), count, file);
+	fclose(file);
+}
+
+void read_students(Student* students, unsigned short count)
+{
+	FILE* file = fopen("students.bin", "rb");
+
+	if (!file) {
+		return;
+	}
+
+	fread(students, sizeof(Student), count, file);
 	fclose(file);
 }
 
