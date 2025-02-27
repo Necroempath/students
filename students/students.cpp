@@ -39,15 +39,15 @@ inline bool addStudent(Student* students, unsigned short& count, const Student s
 
 bool isValidStudent(const Student* students, unsigned short count, const Student student);
 
-int getID();
+unsigned short getID(const Student* studetns, const unsigned short count, const unsigned short capacity);
+
+unsigned short input_ID();
 
 bool removeStudent(Student*& students, unsigned short& count, const unsigned short capacity, const int id);
 
-bool write_students(Student student);
+bool write_students(const Student* students, const unsigned short count);
 
-bool write_students(Student* students, unsigned short count);
-
-bool read_students(Student* students, unsigned short count);
+bool read_students(Student* students, const unsigned short count);
 
 int get_size();
 
@@ -55,13 +55,14 @@ void restore_students();
 
 int main()
 {
+	srand(time(NULL));
 	unsigned short capacity = 10;
 	bool exit = false;
 	unsigned short option;
 
 	Student* students = new Student[capacity];
 	Student student;
-	//restore_students();
+	restore_students(); //RESETs Students.bin file to default
 	unsigned short count = get_size() / sizeof(Student);
 	read_students(students, count);
 
@@ -85,7 +86,7 @@ int main()
 				if (count == capacity)
 					resizeArray(students, capacity);
 
-				student.id = count;
+				student.id = getID(students, count, capacity);
 				addStudent(students, count, student);
 				write_students(students, count);
 
@@ -103,7 +104,7 @@ int main()
 			}
 			std::cout << "Input ID of student you want to delete: \t";
 
-			if (removeStudent(students, count, capacity, getID())) {
+			if (removeStudent(students, count, capacity, input_ID())) {
 
 				write_students(students, count);
 				std::cout << "Student has been deleted\n";
@@ -137,11 +138,11 @@ void restore_students()
 		return;
 	}
 	Student students[5] = {
-		{{"USA", "New York", "5th Avenue"}, 0, "Alice", 20, 4.5},
-		{{"Canada", "Toronto", "Bay Street"}, 1, "Bob", 22, 3.8},
-		{{"UK", "London", "Baker Street"}, 2, "Charlie", 21, 4.2},
-		{{"Germany", "Berlin", "Hauptstrasse"}, 3, "David", 23, 4.7},
-		{{"France", "Paris", "Champs-Ulysies"}, 4, "Eve", 19, 4.9}
+		{{"USA", "New York", "5th Avenue"}, 101, "Alice", 20, 4.5},
+		{{"Canada", "Toronto", "Bay Street"}, 102, "Bob", 22, 3.8},
+		{{"UK", "London", "Baker Street"}, 103, "Charlie", 21, 4.2},
+		{{"Germany", "Berlin", "Hauptstrasse"}, 104, "David", 23, 4.7},
+		{{"France", "Paris", "Champs-Ulysies"}, 105, "Eve", 19, 4.9}
 	};
 
 	fwrite(students, sizeof(Student), 5, file);
@@ -165,21 +166,7 @@ int get_size()
 	return size;
 }
 
-bool write_students(Student student)
-{
-	FILE* file = fopen(file_name, "wb");
-
-	if (!file) {
-		return 0;
-	}
-
-	fwrite(&student, sizeof(Student), 1, file);
-	fclose(file);
-
-	return 1;
-}
-
-bool write_students(Student* students, unsigned short count)
+bool write_students(const Student* students, const unsigned short count)
 {
 	FILE* file = fopen(file_name, "wb");
 
@@ -193,11 +180,11 @@ bool write_students(Student* students, unsigned short count)
 	return 1;
 }
 
-bool read_students(Student* students, unsigned short count)
+bool read_students(Student* students, const unsigned short count)
 {
 	FILE* file = fopen(file_name, "rb");
 
-	if (!file) {
+	if (!file || count == 0) {
 		return 0;
 	}
 
@@ -332,10 +319,36 @@ bool removeStudent(Student*& students, unsigned short& count, const unsigned sho
 	return 1;
 }
 
-int getID()
+inline unsigned short input_ID()
 {
 	int id;
 	std::cin >> id;
 	std::cin.ignore();
 	return id;
+}
+
+unsigned short getID(const Student* students, const unsigned short count, const unsigned short capacity)
+{
+	if (!students || count == 0) {
+		return 0;
+	}
+
+	unsigned short id;
+	bool unique = false;
+
+	while (!unique)
+	{
+		id = 100 + rand() % (100 * capacity - 100);
+
+		for (unsigned short i = 0; i < count; i++)
+		{
+			if (id == students[i].id)
+				break;
+		}
+
+		unique = true;
+	}
+
+	return id;
+
 }
